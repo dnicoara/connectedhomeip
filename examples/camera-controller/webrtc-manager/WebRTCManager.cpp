@@ -393,6 +393,15 @@ CHIP_ERROR WebRTCManager::Connnect(Controller::DeviceCommissioner & commissioner
         },
         nullptr);
 
+    mDataChannel = mPeerConnection->createDataChannel("data");
+    mDataChannel->onMessage([](std::variant<rtc::binary, rtc::string> message) {
+        if (std::holds_alternative<rtc::string>(message))
+        {
+            std::string message_content = std::get<rtc::string>(message);
+            ChipLogProgress(Camera, "DataChannel message: %s", message_content.c_str());
+        }
+    });
+
     ChipLogProgress(Camera, "Generate and set the SDP");
     mPeerConnection->setLocalDescription();
 
